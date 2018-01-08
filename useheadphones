@@ -1,0 +1,3 @@
+#!/bin/sh
+
+setaudiooutput alsa_output.usb-Creative_Technology_Creative_USB_Headset-00.analog-stereo

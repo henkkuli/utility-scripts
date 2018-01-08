@@ -1,0 +1,4 @@
+#!/bin/sh
+xrandr --output HDMI-1 --mode 3840x2160 --same-as DP-2 --auto
+xsetroot
+setwallpaper

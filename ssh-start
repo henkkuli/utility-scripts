@@ -1,0 +1,15 @@
+#!/bin/sh
+
+keys=$(ssh-add -L)
+
+# Try to add key from card only if card is present
+pkcs15-tool -ks > /dev/null >& /dev/null
+if [ $? -eq 0 ]; then
+    if [ -z "$(echo "$keys" | grep /usr/lib/opensc-pkcs11.so)" ]; then
+        ssh-add -s /usr/lib/opensc-pkcs11.so
+    fi
+else
+    if [ -z "$(echo "$keys" | grep -e /home/henrik/.ssh/id_rsa)" ]; then
+        ssh-add /home/henrik/.ssh/id_rsa
+    fi
+fi

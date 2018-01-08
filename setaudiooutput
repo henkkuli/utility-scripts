@@ -1,0 +1,9 @@
+#!/bin/sh
+
+destinationSink=$1
+audioSources=`pactl list sink-inputs short | awk -F'\t' '{print $1}'`
+
+pacmd set-default-sink $destinationSink
+for source in $audioSources; do
+    pactl move-sink-input $source $destinationSink
+done

@@ -1,0 +1,5 @@
+#!/bin/sh
+
+defaultSink=$(pactl info | grep 'Default Sink: ' | awk -F': ' '{print $2}')
+
+pactl set-sink-volume $defaultSink $1

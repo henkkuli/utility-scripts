@@ -1,0 +1,76 @@
+#!/bin/bash
+
+# Configuration
+hash=sha256sum
+remote_path="henrik@henriklievonen.fi:/home/henrik/public_html/shared/"
+web_address="https://henriklievonen.fi/shared"
+
+function usage(){
+    echo "Usege:"
+    echo "    share file/directory [--no-ext]"
+    exit 1
+}
+
+# Separate arguments
+positional=()
+while [[ $# -gt 0 ]]; do
+    key="$1"
+
+    case "$key" in
+        --no-ext|--no-extension)
+            no_extension=YES
+            shift
+        ;;
+    *)
+        positional+=("$1")
+        shift
+        ;;
+esac
+done
+
+# Restore positional arguments
+set -- "${positional[@]}"
+if [ "$#" -ne 1 ]; then
+    usage
+fi
+share_path=$1
+
+if [ -f "$share_path" ]; then
+    # Share a single file
+    new_name=$($hash "$share_path" | awk '{{print $1}}')
+    new_path="$remote_path/$new_name"
+
+    # Add extension if not prohibited
+    if [ -z $no_extension ]; then
+        # Extract the extension. This also takes care of lack of extension
+        basename="$(basename "$share_path")"
+        filename="${basename%%.*}"
+        extension="${basename#$filename}"
+        if [ -n "$extension" ]; then
+            new_name="${new_name}${extension}"
+            new_path="${new_path}${extension}"
+        fi
+    fi
+
+    scp "$share_path" "$new_path"
+
+    echo "The file is available at"
+    echo "    $web_address/$new_name"
+    exit 0
+
+elif [ -d "$share_path" ]; then
+    # Share a directory
+    long_hash=$(find "$share_path" -type f -exec "$hash" "{}" +)
+    new_name=$(echo "$long_hash" | $hash | awk '{{print $1}}')
+    new_path="$remote_path/$new_name"
+
+
+    scp -r "$share_path" "$new_path"
+
+    echo "The directory is available at"
+    echo "    $web_address/$new_name/"
+    exit 0
+
+else
+    echo "The path must exist and be either a file or a directory"
+fi
