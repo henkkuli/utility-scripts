@@ -10,13 +10,6 @@ function [] = save_fig(filename, fig, size)
     fig.PaperPosition = [0 0 size];
     fig.PaperSize = [size];
 
-    % Move the legend to the best location
-    leg = findobj(fig, 'Type', 'Legend');
-    if ~isempty(leg)
-        drawnow;
-        leg.Location = 'Best';
-    end
-
     % Wait for the figure to render
     drawnow;
     % And print to the file
