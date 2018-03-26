@@ -3,12 +3,24 @@
 # Configuration
 hash=sha256sum
 remote_path="henrik@henriklievonen.fi:/home/henrik/public_html/shared/"
-web_address="https://henriklievonen.fi/shared"
+web_address="https://s.hli.fi"
 
 function usage(){
     echo "Usege:"
-    echo "    share file/directory [--no-ext]"
+    echo "    share file/directory [--no-ext] [--name name]"
     exit 1
+}
+
+# https://gist.github.com/cdown/1163649
+function urlencode() {
+	local LANG=C
+	for ((i=0;i<${#1};i++)); do
+		if [[ ${1:$i:1} =~ ^[a-zA-Z0-9\.\~\_\-]$ ]]; then
+			printf "${1:$i:1}"
+		else
+			printf '%%%02X' "'${1:$i:1}"
+		fi
+	done
 }
 
 # Separate arguments
@@ -21,10 +33,15 @@ while [[ $# -gt 0 ]]; do
             no_extension=YES
             shift
         ;;
-    *)
-        positional+=("$1")
-        shift
-        ;;
+        --name)
+            shift
+            name="$1"
+            shift
+            ;;
+        *)
+            positional+=("$1")
+            shift
+            ;;
 esac
 done
 
@@ -37,7 +54,14 @@ share_path=$1
 
 if [ -f "$share_path" ]; then
     # Share a single file
-    new_name=$($hash "$share_path" | awk '{{print $1}}')
+
+    if [ -z "$name" ]; then
+        # Create hash for the file name
+        new_name=$($hash "$share_path" | awk '{{print $1}}')
+    else
+        # Use the given name
+        new_name="$name"
+    fi
     new_path="$remote_path/$new_name"
 
     # Add extension if not prohibited
@@ -55,20 +79,27 @@ if [ -f "$share_path" ]; then
     scp "$share_path" "$new_path"
 
     echo "The file is available at"
-    echo "    $web_address/$new_name"
+    echo "    $web_address/$(urlencode "$new_name")"
     exit 0
 
 elif [ -d "$share_path" ]; then
     # Share a directory
-    long_hash=$(find "$share_path" -type f -exec "$hash" "{}" +)
-    new_name=$(echo "$long_hash" | $hash | awk '{{print $1}}')
+
+    if [ -z "$name" ]; then
+        # Create hash for the directory
+        long_hash=$(find "$share_path" -type f -exec "$hash" "{}" +)
+        new_name=$(echo "$long_hash" | $hash | awk '{{print $1}}')
+    else
+        # Use the given name
+        new_name="$name"
+    fi
     new_path="$remote_path/$new_name"
 
 
     scp -r "$share_path" "$new_path"
 
     echo "The directory is available at"
-    echo "    $web_address/$new_name/"
+    echo "    $web_address/$(urlencode "$new_name")/"
     exit 0
 
 else
