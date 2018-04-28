@@ -1,0 +1,28 @@
+#!/bin/sh
+
+function fix() {
+    path="$1"
+    file="$2"
+    if [ ! -e "/usr/lib/$2" ]; then
+        echo File /usr/lib/$2 not found
+        exit 1
+    fi
+    if [ ! -e "$1/$2" ]; then
+        echo File $1/$2 not found
+        exit 1
+    fi
+    ln -sf "/usr/lib/$2" "$1/$2"
+}
+
+MATLAB_ROOT="/usr/local/MATLAB/R2018a/"
+fix "$MATLAB_ROOT/bin/glnxa64" libfreetype.so.6
+fix "$MATLAB_ROOT/cefclient/sys/os/glnxa64/" libgio-2.0.so
+fix "$MATLAB_ROOT/cefclient/sys/os/glnxa64/" libgio-2.0.so.0
+fix "$MATLAB_ROOT/cefclient/sys/os/glnxa64/" libglib-2.0.so
+fix "$MATLAB_ROOT/cefclient/sys/os/glnxa64/" libglib-2.0.so.0
+fix "$MATLAB_ROOT/cefclient/sys/os/glnxa64/" libgmodule-2.0.so
+fix "$MATLAB_ROOT/cefclient/sys/os/glnxa64/" libgmodule-2.0.so.0
+fix "$MATLAB_ROOT/cefclient/sys/os/glnxa64/" libgobject-2.0.so
+fix "$MATLAB_ROOT/cefclient/sys/os/glnxa64/" libgobject-2.0.so.0
+fix "$MATLAB_ROOT/cefclient/sys/os/glnxa64/" libgthread-2.0.so
+fix "$MATLAB_ROOT/cefclient/sys/os/glnxa64/" libgthread-2.0.so.0
