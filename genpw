@@ -1,0 +1,13 @@
+#!/usr/bin/python3
+
+import secrets
+
+COUNT = 5
+LENGTH = 4
+SPECIAL_CHARACTERS = '!@#$%^&*()_{}[]\\'
+
+with open('/home/henrik/passwords-sequence.txt') as f:
+    words = [word.strip() for word in f]
+    for i in range(COUNT):
+        password = ''.join(secrets.choice(words).capitalize() + secrets.choice(SPECIAL_CHARACTERS) for i in range(LENGTH))
+        print(password)
